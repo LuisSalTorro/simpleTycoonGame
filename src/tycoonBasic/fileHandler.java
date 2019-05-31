@@ -1,4 +1,5 @@
 package tycoonBasic;
+import javax.swing.*;
 import java.io.*;
 import java.lang.*;
 import java.util.*;
@@ -10,9 +11,11 @@ public class fileHandler {
     private int[] date = {5, 28, 2019}; //month, day,  year
     private Formatter file;
     private Scanner fileReader;
+    private int numOfEmployees, numOfDevs, numOfDesigners; //currently dev and designer.
 
-    private String dataInputs =  "%s\n%d\n%d %d %d";          // +    //name, money, month, day, year.
+    private String dataInputs =  "%s\n%d\n%d %d %d\n" +          // +    //name, money, month, day, year.
                                     //  "%d%d" +             //add loans and morale(0-100)
+                                    "%d\n%d %d"; //number of employees and then devs and designers
                                     //  "%d%d%d%d";         // Add more stuff, like numbers of workers in certain positions (secretary, dev, accoutant, HR, and so on.)
     //secretary boosts daily earnings by a small fraction.
     //dev brings in more earnings, period
@@ -27,16 +30,17 @@ public class fileHandler {
     private String errorSavingGame = "There was an error saving data.",
                    errorLoadingGame = "Could not properly load saved data.";
 
-    public fileHandler(){
-
-    }
+    public fileHandler(){ }
 
     public void saveData(Player player){
         try{
             this.file = new Formatter(this.fileName);
-            this.file.format(dataInputs, player.getName(), player.getCash(), player.getDate()[0], player.getDate()[1],player.getDate()[2]); //adds name and money into save data.
+            this.file.format(dataInputs, player.getName(), player.getCash(), //adds name and money into save data.
+                    player.getDate()[0], player.getDate()[1],player.getDate()[2], //adds date
+                    player.numOfEmployees, player.numOfDevs, player.numOfDesigners); //number of employees by each position.
         }catch(Exception e){
-            System.out.println(this.errorSavingGame);
+           // System.out.println(this.errorSavingGame);
+            JOptionPane.showMessageDialog(null, this.errorSavingGame);
         }
     }
 
@@ -46,9 +50,11 @@ public class fileHandler {
         try{
             this.file = new Formatter(this.fileName);
             this.file.format(dataInputs, this.busName, this.cashInHand,
-                                this.date[0], this.date[1],this.date[2]); //adds name and money into save data.
+                                this.date[0], this.date[1],this.date[2], //adds name and money into save data.
+                                this.numOfEmployees, this.numOfDevs, this.numOfDesigners);   //adds number of employees split by position
         }catch(Exception e){
-            System.out.println(this.errorSavingGame);
+            //System.out.println(this.errorSavingGame);
+            JOptionPane.showMessageDialog(null, this.errorSavingGame);
         }
     }
 
@@ -70,6 +76,12 @@ public class fileHandler {
             this.date[0] = fileReader.nextInt();
             this.date[1] = fileReader.nextInt();
             this.date[2] = fileReader.nextInt();
+
+            this.numOfEmployees = fileReader.nextInt();
+
+            this.numOfDevs = fileReader.nextInt();
+            this.numOfDesigners = fileReader.nextInt();
+
 
             //add loans debt
             //add morale
@@ -96,6 +108,18 @@ public class fileHandler {
 
     public int[] getDate(){
         return this.date;
+    }
+
+    public int getNumOfDevs(){
+        return this.numOfDevs;
+    }
+
+    public int getNumOfDesigners(){
+        return this.numOfDesigners;
+    }
+
+    public int getNumOfEmployees(){
+        return this.numOfEmployees;
     }
 
     public void closeFile(){

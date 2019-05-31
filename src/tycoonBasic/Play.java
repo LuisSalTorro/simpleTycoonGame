@@ -26,12 +26,14 @@ public class Play extends JPanel {
                 bankCheck + player.getCash() + "\n" +
                 displayDate + player.getDateSTR());
 
+        saveGame(player);
 
+    }
+
+    public void saveGame(Player player){
         gameData.saveData(player);
         gameData.closeFile();
     }
-
-
 
     /**
      * Loads up previous game
@@ -82,21 +84,6 @@ public class Play extends JPanel {
             gameData.loadSaveData();
         }
     }
-
-
-//    public boolean checkYes(String ans){
-//        if(ans.toUpperCase().equals(this.y) || ans.toUpperCase().equals(this.yes)){
-//            return true;
-//        }
-//        return false;
-//    }
-//
-//    public boolean checkNo(String ans){
-//        if(ans.toUpperCase().equals(this.n) || ans.toUpperCase().equals(this.no)){
-//            return true;
-//        }
-//        return false;
-//    }
 
     public Player getPlayer(){
         return this.player;
