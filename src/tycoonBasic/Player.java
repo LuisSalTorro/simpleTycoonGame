@@ -7,6 +7,7 @@ public class Player {
     int timeGoneby; //current date - original date. (for month, mod12. for day mod31????.)
     int numOfDevs, numOfDesigners;
     int numOfEmployees = 0;
+    int debt = 0, interest;
 
     private String dateSTR = date[0]+"/"+date[1]+"/"+date[2];  //month, day, year
 //    private String date = day+"/"+month+"/"+year;
@@ -21,14 +22,25 @@ public class Player {
         this.numOfDevs = savedData.getNumOfDevs();
         this.numOfDesigners = savedData.getNumOfDesigners();
         this.numOfEmployees = savedData.getNumOfEmployees();
+        this.debt = savedData.getDebt();
+        this.interest = savedData.getInterest();
     }
 
     public void addCash(int cash){
         this.cash += cash;
     }
 
+    public void addLoan(int loan){
+        this.debt += loan;
+    }
+
     public void payment(int payment){
         this.cash -= payment;
+    }
+
+    public void loanPayment(int loanPayment){
+        this.cash -= loanPayment;
+        this.debt -= loanPayment;
     }
 
     public void addEmployees(){
@@ -65,6 +77,12 @@ public class Player {
     }
     public int getNumOfEmployees(){
         return (this.numOfEmployees);
+    }
+    public int getDebt(){
+        return this.debt;
+    }
+    public int getInterest(){
+        return this.interest;
     }
 
 

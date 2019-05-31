@@ -12,10 +12,12 @@ public class fileHandler {
     private Formatter file;
     private Scanner fileReader;
     private int numOfEmployees, numOfDevs, numOfDesigners; //currently dev and designer.
+    private int debt, interest;
 
     private String dataInputs =  "%s\n%d\n%d %d %d\n" +          // +    //name, money, month, day, year.
                                     //  "%d%d" +             //add loans and morale(0-100)
-                                    "%d\n%d %d"; //number of employees and then devs and designers
+                                    "%d\n%d %d" + //number of employees and then devs and designers
+                                    "\n%d %d"; //debt and interest
                                     //  "%d%d%d%d";         // Add more stuff, like numbers of workers in certain positions (secretary, dev, accoutant, HR, and so on.)
     //secretary boosts daily earnings by a small fraction.
     //dev brings in more earnings, period
@@ -32,18 +34,28 @@ public class fileHandler {
 
     public fileHandler(){ }
 
+    /**
+     * Saves current data of playthrough
+     * @param player
+     */
     public void saveData(Player player){
         try{
             this.file = new Formatter(this.fileName);
             this.file.format(dataInputs, player.getName(), player.getCash(), //adds name and money into save data.
                     player.getDate()[0], player.getDate()[1],player.getDate()[2], //adds date
-                    player.numOfEmployees, player.numOfDevs, player.numOfDesigners); //number of employees by each position.
+                    player.numOfEmployees, player.numOfDevs, player.numOfDesigners,
+                    player.getDebt(), player.getInterest()); //number of employees by each position.
         }catch(Exception e){
            // System.out.println(this.errorSavingGame);
             JOptionPane.showMessageDialog(null, this.errorSavingGame);
         }
     }
 
+    /**
+     * Creates a new save data
+     * @param busName
+     * @param cashInHand
+     */
     public void createSaveData(String busName, int cashInHand){
         this.busName = busName;
         this.cashInHand = cashInHand;
@@ -51,9 +63,9 @@ public class fileHandler {
             this.file = new Formatter(this.fileName);
             this.file.format(dataInputs, this.busName, this.cashInHand,
                                 this.date[0], this.date[1],this.date[2], //adds name and money into save data.
-                                this.numOfEmployees, this.numOfDevs, this.numOfDesigners);   //adds number of employees split by position
+                                this.numOfEmployees, this.numOfDevs, this.numOfDesigners,
+                                this.debt, this.interest);   //adds number of employees split by position
         }catch(Exception e){
-            //System.out.println(this.errorSavingGame);
             JOptionPane.showMessageDialog(null, this.errorSavingGame);
         }
     }
@@ -65,6 +77,10 @@ public class fileHandler {
             System.out.print(problem);
         }
     }
+
+    /**
+     * Loads data from saved data
+     */
 
     public void loadSaveData(){
         openData(this.errorLoadingGame+"\n");
@@ -82,12 +98,10 @@ public class fileHandler {
             this.numOfDevs = fileReader.nextInt();
             this.numOfDesigners = fileReader.nextInt();
 
+            this.debt = fileReader.nextInt();
+            this.interest = fileReader.nextInt();
 
-            //add loans debt
             //add morale
-
-            //add number of workers per position
-
         }
     }
 
@@ -120,6 +134,13 @@ public class fileHandler {
 
     public int getNumOfEmployees(){
         return this.numOfEmployees;
+    }
+
+    public int getDebt(){
+        return this.debt;
+    }
+    public int getInterest(){
+        return this.interest;
     }
 
     public void closeFile(){

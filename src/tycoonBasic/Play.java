@@ -30,6 +30,10 @@ public class Play extends JPanel {
 
     }
 
+    /**
+     * Saves current playthrough of the game
+     * @param player
+     */
     public void saveGame(Player player){
         gameData.saveData(player);
         gameData.closeFile();
@@ -45,7 +49,6 @@ public class Play extends JPanel {
         //check for saved data and ask to overwrite if it exists
         boolean makeNewFile = false;
         if(gameData.saveDataExists()){
-
             Object[] options = {createNewGame,
                     loadGame};
             int ans = JOptionPane.showOptionDialog(null,
@@ -77,7 +80,6 @@ public class Play extends JPanel {
          else, we load up previous game data.
          */
         if (!gameData.saveDataExists() || makeNewFile) {
-            //System.out.println(askingForBusName);
             name = JOptionPane.showInputDialog(askingForBusName);
             gameData.createSaveData(name, cash);
         }else{ //saved data already exists and does not want to be overridden
