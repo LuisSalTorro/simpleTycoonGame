@@ -1,2 +1,2 @@
 # simpleTycoonGame
-A simple tycoon game with no GUI
+A simple tycoon game with a simple GUI layout
