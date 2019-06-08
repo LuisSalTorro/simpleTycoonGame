@@ -13,7 +13,7 @@ public class Play extends JPanel {
             answeredYes = "Are you sure you want to start a new game?",
             //y = "Y", yes = "YES", n = "N", no = "NO",
             welcomeBack = "Welcome back to ", bankCheck = "Cash in bank: $",
-            displayDate = "Date: ",
+            //displayDate = "Date: ",
             titleForNewGame = "New Game?",
             createNewGame = "Create New Game", loadGame = "Load Game";
 
@@ -24,7 +24,7 @@ public class Play extends JPanel {
 
         JOptionPane.showMessageDialog(null, welcomeBack + name +  "\n" +
                 bankCheck + player.getCash() + "\n" +
-                displayDate + player.getDateSTR());
+                player.getDateSTR());
 
         saveGame(player);
 

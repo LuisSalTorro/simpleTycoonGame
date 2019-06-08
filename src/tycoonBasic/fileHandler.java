@@ -8,17 +8,24 @@ import java.io.File;
 public class fileHandler {
     private String busName;
     private int cashInHand;
-    private int[] date = {5, 28, 2019}; //month, day,  year
+    private int[] date = {0, 0, 0}; //month, day,  year //Year, month, week
     private Formatter file;
     private Scanner fileReader;
     private int numOfEmployees, numOfDevs, numOfDesigners; //currently dev and designer.
     private int debt, interest;
+    private int rentTier = 1, monthlyRent = 250;
+    private int morale = 50;
+    private String location1 = "location1.jpg", location2 = "location2.jpg", location3 = "location3.jpg", location4 = "location4.jpg";
+    private int reputation = 1;
 
     private String dataInputs =  "%s\n%d\n%d %d %d\n" +          // +    //name, money, month, day, year.
                                     //  "%d%d" +             //add loans and morale(0-100)
                                     "%d\n%d %d" + //number of employees and then devs and designers
-                                    "\n%d %d"; //debt and interest
+                                    "\n%d %d" + //debt and interest
+                                    "\n%d %d" + //rentTier and monthly rent
+                                    "\n%d %d"; //morale and reputation
                                     //  "%d%d%d%d";         // Add more stuff, like numbers of workers in certain positions (secretary, dev, accoutant, HR, and so on.)
+
     //secretary boosts daily earnings by a small fraction.
     //dev brings in more earnings, period
     //accountant makes
@@ -44,7 +51,10 @@ public class fileHandler {
             this.file.format(dataInputs, player.getName(), player.getCash(), //adds name and money into save data.
                     player.getDate()[0], player.getDate()[1],player.getDate()[2], //adds date
                     player.numOfEmployees, player.numOfDevs, player.numOfDesigners,
-                    player.getDebt(), player.getInterest()); //number of employees by each position.
+                    player.getDebt(), player.getInterest(), //number of employees by each position.
+                    player.getRentTier(), player.getMonthlyRent(),
+                    player.getMorale(),
+                    player.getReputation());
         }catch(Exception e){
            // System.out.println(this.errorSavingGame);
             JOptionPane.showMessageDialog(null, this.errorSavingGame);
@@ -64,7 +74,10 @@ public class fileHandler {
             this.file.format(dataInputs, this.busName, this.cashInHand,
                                 this.date[0], this.date[1],this.date[2], //adds name and money into save data.
                                 this.numOfEmployees, this.numOfDevs, this.numOfDesigners,
-                                this.debt, this.interest);   //adds number of employees split by position
+                                this.debt, this.interest, //adds number of employees split by position
+                                this.rentTier, this.monthlyRent,
+                                this.morale,
+                                this.reputation);
         }catch(Exception e){
             JOptionPane.showMessageDialog(null, this.errorSavingGame);
         }
@@ -74,7 +87,7 @@ public class fileHandler {
         try{
             this.fileReader = new Scanner(new File(this.fileName));
         }catch(Exception e){
-            System.out.print(problem);
+            JOptionPane.showMessageDialog(null, problem);
         }
     }
 
@@ -101,11 +114,17 @@ public class fileHandler {
             this.debt = fileReader.nextInt();
             this.interest = fileReader.nextInt();
 
+            this.rentTier = fileReader.nextInt();
+            this.monthlyRent = fileReader.nextInt();
             //add morale
+            this.morale = fileReader.nextInt();
+            this.reputation = fileReader.nextInt();
         }
     }
 
-    //checks to see if a save data exists
+    /**
+     * checks to see if a save data exists
+     */
     public boolean saveDataExists(){
         File f = new File(fileName);
         if(f.exists()) return true;
@@ -141,6 +160,12 @@ public class fileHandler {
     }
     public int getInterest(){
         return this.interest;
+    }
+    public int getRentTier(){return this.rentTier;}
+    public int getMonthlyRent(){return this.monthlyRent;}
+    public int getMorale(){return this.morale;}
+    public int getReputation(){
+        return this.reputation;
     }
 
     public void closeFile(){

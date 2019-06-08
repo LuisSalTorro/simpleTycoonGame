@@ -7,15 +7,18 @@ import javax.swing.JButton;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class GUI extends JFrame{ //JPanel
+public class GUI extends JFrame{
 
     private JPanel panel, panel2, panel3, panel4, panel5, panel6, panel7, panel8;
     private final int WIN_WIDTH = 450, WIN_HEIGHT = 450;
-    private JButton hireButton, rentLocation, bankButton, saveButton;
+    private JButton hireButton, rentLocation, bankButton, saveButton, nextWeekButton, moraleBoosterButton;
 
-    String moraleCheck = "Morale: ",
-            workersCheck = "Employees: ";
-    String hire = "Hire more employees",
+    final String moraleCheck = "Total Morale: ",
+            workersCheck = "Employees: ",
+            DEVELOPER = "Developer",
+            DESIGNER = "Designer",
+            dev = "developer", des = "designer", //lowercase versions
+            hire = "Hire more employees",
             rent = "Rent new location",
             bank = "Go to the bank"; //filler
     Play play;
@@ -48,29 +51,42 @@ public class GUI extends JFrame{ //JPanel
      * creates the panel
      */
     String employeeNumStr = "You have ", employeeNumStr2 = " employees.";
-    String cashGeneratingPerDay = "You're generating $", cashGeneratingPerDay2 = " per day.",
-            saveThisGame = "Do you want to save your game?", saveGameSTR = "Save Game",
-            amountOfLoansSTR ="Amount of loans: $";
+    String cashGeneratingPerDay = "You're generating $",
+            cashGeneratingPerDay2 = " per day.",
+            cashInWallet = "Cash in wallet: $",
+            saveThisGame = "Do you want to save your game?",
+            saveGameSTR = "Save Game",
+            amountOfLoansSTR ="Amount of loans: $",
+            devsNumSTR = "Developers hired: ",
+            designNumSTR = "Designers hired: ",
+            nextWeek = "Next Week",
+            boostMoraleSTR = "Boost Morale";
     Player player;
 
     private JLabel cashLabel, workers, devoloperNumberLabel, designerNumberLabel,
-                    totalLoans;
+                    totalLoans,imgLabel,
+                    weekLabel, monthLabel, yearLabel,
+                    repLabel;
+
+    //private ImageIcon img;
 
     public void buildPanel(Player player) {
         this.player = player;
-        //JLabel playerName = new JLabel(player.getName());
-        JLabel moraleLabel = new JLabel(moraleCheck);
-        JLabel dateLabel = new JLabel(this.player.getDateSTR());
+        JLabel moraleLabel = new JLabel(moraleCheck + player.getMorale() + " (Out of 100)");
+
+        weekLabel = new JLabel(player.getWeekSTR());
+        monthLabel = new JLabel(player.getMonthSTR());
+        yearLabel = new JLabel(player.getYearSTR());
+
+        repLabel = new JLabel("Reputation: "+player.getReputation());
+
         workers = new JLabel(workersCheck + player.numOfEmployees);
         String cashSTR = Integer.toString(this.player.getCash());
-        cashLabel = new JLabel("$" + cashSTR);
-        devoloperNumberLabel = new JLabel("Developers Hired: " + player.getNumOfDevs());
-        designerNumberLabel = new JLabel("Designers Hired: "  + player.getNumOfDesigners());
+        cashLabel = new JLabel(cashInWallet + cashSTR);
+        devoloperNumberLabel = new JLabel(devsNumSTR + player.getNumOfDevs());
+        designerNumberLabel = new JLabel(designNumSTR  + player.getNumOfDesigners());
         JLabel saveGameLabel = new JLabel(saveThisGame);
 
-        String numEmployees = Integer.toString(this.player.getNumOfEmployees());
-        JLabel totalNumOfEmployees = new JLabel(employeeNumStr+ numEmployees + employeeNumStr2);
-        JLabel cashGeneratingLabel = new JLabel(cashGeneratingPerDay + 0 +cashGeneratingPerDay2);
         JLabel buyWorkers = new JLabel(hire);
 
         totalLoans = new JLabel(amountOfLoansSTR + player.getDebt());
@@ -85,8 +101,17 @@ public class GUI extends JFrame{ //JPanel
         bankButton = new JButton(bank);
         bankButton.addActionListener(new PayButton());
 
+        moraleBoosterButton = new JButton(boostMoraleSTR);
+        moraleBoosterButton.addActionListener(new PayButton());
+
         saveButton = new JButton(saveGameSTR);
         saveButton.addActionListener(new PayButton());
+
+        nextWeekButton= new JButton(nextWeek);
+        nextWeekButton.addActionListener(new PayButton());
+
+        //add the images
+        imgLabel = new JLabel(addImg(player.getRentTier()));
 
         panel = new JPanel(new GridLayout(4,0));
         panel2 = new JPanel(); //bank
@@ -94,85 +119,134 @@ public class GUI extends JFrame{ //JPanel
         panel4 = new JPanel(); //employees
         panel5 = new JPanel();
         panel6 = new JPanel(); //
-        panel7 = new JPanel(); //will have the location picture
+        panel7 = new JPanel(new GridLayout(4,0)); //will have the location picture
         panel8 = new JPanel(); //be the new save option
 
-        // panel.add(playerName);
         panel.add(cashLabel);
-        panel.add(dateLabel);
         panel.add(workers);
-        panel.add(moraleLabel);
+        panel.add(repLabel);
 
         panel2.add(totalLoans);
         panel2.add(bankButton);
 
-        panel3.add(rentLocation);
+        panel3.add(imgLabel);
+        panel5.add(rentLocation); //Currently in a new panel
 
         panel4.add(devoloperNumberLabel);
         panel4.add(designerNumberLabel);
         panel4.add(hireButton);
 
-        panel5.add(cashGeneratingLabel);
+        panel6.add(moraleLabel);
+        panel6.add(moraleBoosterButton);
 
-        panel6.add(saveGameLabel);
-        panel6.add(saveButton);
+        panel7.add(yearLabel);
+        panel7.add(monthLabel);
+        panel7.add(weekLabel);
+        panel7.add(nextWeekButton);
 
+        panel8.add(saveGameLabel);
+        panel8.add(saveButton);
     }
-    String devHire = "Developer for $2,000", designHire = "Designer for $1,000", cancel = "Cancel", interview = "Which will you hire?";
-    String hired = "You have hired a ", dev = "developer", des = "designer";
+
+
+    String devHire = DEVELOPER + " for $2,000", designHire =  DESIGNER +" for $1,000", cancel = "Cancel", interview = "Which will you hire?";
+    String hired = "You have hired a ";
     String insuffecientFunds = "You do not have enough funds. Try taking a loan from the bank.";
+
+
+    String buyPropertySTR = "Do you want to buy property?",
+            gameSavedConfirmation = "Your game has been saved.";
+
+    //bank method
+    String takeLoan = "Take out a loan",
+            payLoan = "Pay a loan",
+            bankGreet = "How can we help you today?",
+            bankTitle = "Bank",
+            howMuchForLoan = "How much do you want to pull out for a loan?",
+            loanAmountSTR1 = "You have $", loanAmountSTR2 = " in loans",
+            excessivePay = "Make sure to only pay off your loans and no more.",
+            noLoansToPay = "You have no loans to pay.",
+            negativeNumInput = "Don't pay the bank extra!",
+            illegalArgError = "Please type in numbers only.";
 
     private class PayButton implements ActionListener{
         public void actionPerformed(ActionEvent event){
             if(event.getSource() == hireButton){
-                //JOptionPane.showMessageDialog(null,"Do you want to buy employees?");
-                Object[] options = {devHire,
-                                    designHire,
-                                    cancel};
-                int ans = JOptionPane.showOptionDialog(null,
-                        interview,
-                        hire,
-                        JOptionPane.YES_NO_CANCEL_OPTION,
-                        JOptionPane.QUESTION_MESSAGE,
-                        null,
-                        options,
-                        options[2]);
-                if(ans == 0){ //hires developer
-                   devHire();
-                }
-                if(ans == 1){ //hires designer
-                    designHire();
+                if(checkForSpace()){
+                    interviewing();
                 }
             }
             if(event.getSource() == rentLocation){
-                JOptionPane.showMessageDialog(null,"Do you want to buy property?");
+                realEstate();
             }
             if(event.getSource() == bankButton){
-                //JOptionPane.showMessageDialog(null,"Do you want to pull a loan?"); // give options to pull loans or pay them off
                 atBank();
             }
-
             if(event.getSource() == saveButton){
-                JOptionPane.showMessageDialog(null, "You're game has been saved.");
+                JOptionPane.showMessageDialog(null, gameSavedConfirmation);
                 play.saveGame(player);
+            }
+            if(event.getSource() == nextWeekButton){
+                newWeek();
+            }
+            if(event.getSource() == moraleBoosterButton){
+                JOptionPane.showMessageDialog(null,"A list of items you can buy in the office to boost morale."); //And they'll be expensive
             }
         }
 
+        public void interviewing(){
+            Object[] options = {devHire,
+                    designHire,
+                    cancel};
+            int ans = JOptionPane.showOptionDialog(null,
+                    interview,
+                    hire,
+                    JOptionPane.YES_NO_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    options[2]);
+            if(ans == 0){ //hires developer
+                devHire();
+            }
+            if(ans == 1){ //hires designer
+                designHire();
+            }
+        }
+
+        public boolean checkForSpace(){
+            /*
+                the player can only hire a certain number of employees depending on their office
+                first office: 5 total
+                second office: 9 total
+                third office: 16 total
+                fourth office: 32 total
+                 */
+            if(player.getRentTier() == 1 && player.getNumOfEmployees() >= 5){
+                JOptionPane.showMessageDialog(null,"You cannot hire more employees until you upgrade offices.");
+                return false;
+            }
+            if(player.getRentTier() == 2 && player.getNumOfEmployees() >= 9){
+                JOptionPane.showMessageDialog(null,"You cannot hire more employees until you upgrade offices.");
+                return false;
+            }
+            if(player.getRentTier() == 3 && player.getNumOfEmployees() >= 16){
+                JOptionPane.showMessageDialog(null,"You cannot hire more employees until you upgrade offices.");
+                return false;
+            }
+            if(player.getRentTier() == 4 && player.getNumOfEmployees() >= 32){
+                JOptionPane.showMessageDialog(null,"You cannot hire more employees until you upgrade offices.");
+                return false;
+            }
+            return true;
+        }
+
         public void devHire(){
-            Developer devMan = new Developer("Rick", 2000, 0);
-            if(player.getCash() - devMan.getSalary() < 0){
+            Developer developer = new Developer("Rick", 2000, 0);
+            if(player.getCash() - developer.getSalary() < 0){
                 JOptionPane.showMessageDialog(null, insuffecientFunds);
             }else{
-                player.payment(devMan.getSalary());
-
-                JOptionPane.showMessageDialog(null,hired+dev);
-                String afterPay = Integer.toString(player.getCash());
-                cashLabel.setText("$" + afterPay);
-                player.addEmployees();
-                player.addDev();
-                workers.setText(workersCheck + player.getNumOfEmployees());
-                devoloperNumberLabel.setText("Developers Hired: " + player.getNumOfDevs());
-
+                employeeCheck(developer);
             }
         }
 
@@ -181,25 +255,35 @@ public class GUI extends JFrame{ //JPanel
             if(player.getCash() - designer.getSalary() < 0){
                 JOptionPane.showMessageDialog(null, insuffecientFunds);
             }else{
-                player.payment(designer.getSalary());
-                JOptionPane.showMessageDialog(null,hired+des);
-                String salaryPay = Integer.toString(player.getCash());
-                cashLabel.setText("$" + salaryPay);
-                player.addEmployees();
-                player.addDesigner();
-                workers.setText(workersCheck + player.getNumOfEmployees());
-                designerNumberLabel.setText("Designers Hired: "  + player.getNumOfDesigners());
+                employeeCheck(designer);
             }
         }
-        String takeLoan = "Take out a loan", payLoan = "Pay a loan",
-            howMuchForLoan = "How much do you want to pull out for a loan?";
+
+        public void employeeCheck(Employee employee){
+            player.payment(employee.getSalary());
+
+            JOptionPane.showMessageDialog(null,hired+employee.getPosition());
+            String afterPay = Integer.toString(player.getCash());
+            cashLabel.setText(cashInWallet + afterPay);
+            player.addEmployees();
+            if(employee.getPosition().equals(DEVELOPER)){
+                player.addDev();
+                devoloperNumberLabel.setText(devsNumSTR + player.getNumOfDevs());
+            }else if(employee.getPosition().equals(DESIGNER)){
+                player.addDesigner();
+                designerNumberLabel.setText(designNumSTR  + player.getNumOfDesigners());
+            }
+            workers.setText(workersCheck + player.getNumOfEmployees());
+        }
+
+
         public void atBank(){
             Object[] options = {payLoan,
                     takeLoan,
                     cancel};
             int ans = JOptionPane.showOptionDialog(null,
-                    interview,
-                    hire,
+                    bankGreet,
+                    bankTitle,
                     JOptionPane.YES_NO_CANCEL_OPTION,
                     JOptionPane.QUESTION_MESSAGE,
                     null,
@@ -210,53 +294,136 @@ public class GUI extends JFrame{ //JPanel
                 int loanPayment;
                 while(true){
                     try{
-                        loanPayment  = Integer.valueOf(JOptionPane.showInputDialog("You have $" + player.getDebt() + " in loans."));
-                        if(player.debt - loanPayment < 0 || loanPayment < 0){
-                            JOptionPane.showMessageDialog(null, "Make sure to only pay off your loans and no more.");
+                        loanPayment  = Integer.valueOf(JOptionPane.showInputDialog(loanAmountSTR1 + player.getDebt() + loanAmountSTR2, 1000));
+                        if(player.debt - loanPayment < 0 || loanPayment < 0 || (player.getCash() - loanPayment) < 0){
+                            JOptionPane.showMessageDialog(null, excessivePay);
                             continue;
                         }
                         else{
                             break;
                         }
                     }catch(IllegalArgumentException e){
-                        JOptionPane.showMessageDialog(null, "Please type in numbers.");
+                        JOptionPane.showMessageDialog(null, illegalArgError);
                     }
                 }
 
                 player.loanPayment(loanPayment);
                 String afterPay = Integer.toString(player.getCash());
-                cashLabel.setText("$" + afterPay);
+                cashLabel.setText(cashInWallet + afterPay);
 
             }else if(ans == 0 && player.getDebt() == 0){
-                JOptionPane.showMessageDialog(null, "You have no loans to pay.");
+                JOptionPane.showMessageDialog(null, noLoansToPay);
             }
-            if(ans == 1){ //
-               // JOptionPane.showMessageDialog(null, "How much money do you want to pull?");
+            if(ans == 1){
                 //have the amount to pull based on how much money you're generating
-                //JTextField loanPull = new JTextField();
                 int loan;
                 while(true){
                     try{
                         loan = Integer.valueOf(JOptionPane.showInputDialog(howMuchForLoan, 1000));
                         if(loan < 0){
-                            JOptionPane.showMessageDialog(null,"Make sure to pull out loans, not give free money.");
+                            JOptionPane.showMessageDialog(null,negativeNumInput);
                             continue;
                         }
 
                         break;
                     }catch(IllegalArgumentException e){
-                        JOptionPane.showMessageDialog(null, "Type in only numbers.");
+                        JOptionPane.showMessageDialog(null, illegalArgError);
                     }
                 }
                 player.addCash(loan);
                 player.addLoan(loan);
                 String afterPay = Integer.toString(player.getCash());
-                cashLabel.setText("$" + afterPay);
+                cashLabel.setText(cashInWallet + afterPay);
 
             }
 
             totalLoans.setText(amountOfLoansSTR + player.getDebt());
         }
+
+    }//bank method
+
+    String realEstateGreet = "Would you like to upgrade your office for $",
+            monthlyRent = "With a monthly rent of $", //rent = downpayment/5
+            rentTitle = "Real Estate Agency";
+    int[] downPayment = {5000, 20000, 100000};  //5K, 20K, and 100K
+    int constantRent = 5; //so I don't lose it later
+
+    public void realEstate(){
+
+        if(player.getRentTier() >= 4){
+            JOptionPane.showMessageDialog(null, "You have bought the best property you can afford!");
+            return;
+        }else{
+            int rentTier = player.getRentTier();
+            int setPayment = downPayment[rentTier-1];
+            int rent = setPayment/constantRent;
+            Object[] options = {"Yes","Come back later"};
+            int ans = JOptionPane.showOptionDialog(null,
+                    realEstateGreet + setPayment + "?\n" +
+                            monthlyRent + rent + ".",
+                    rentTitle,
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    options[1]);
+            if(ans == 0){  //yes
+                if(player.getCash() - setPayment >= 0){
+                    player.payment(setPayment);
+                    player.setMonthlyRent(rent);
+                    cashLabel.setText(cashInWallet + player.getCash());
+                    player.incrementRentTier();
+                    imgLabel.setIcon(addImg(player.getRentTier()));
+                    return;
+                }
+            }
+            JOptionPane.showMessageDialog(null,"Save up some more money.");
+
+        }
+
+    }
+
+    //VERY PRONE TO ERROR!!!! FIX LATER TO CATCH FILES THAT DO NOT EXIST
+    String location = "location",
+            jpgFile = ".jpg";
+    int width = WIN_WIDTH/3,
+        height = WIN_HEIGHT/4;
+    public ImageIcon addImg(int rentTier){
+        ImageIcon icon = new ImageIcon(location + rentTier + jpgFile);
+        Image scaleImage = icon.getImage().getScaledInstance(width,height,Image.SCALE_DEFAULT);
+        //img = new ImageIcon("location1.jpg");
+        ImageIcon img = new ImageIcon(scaleImage);
+        return img;
+    }
+    //ABOVE METHOD IS VERY PRONE TO ERROR
+    Developer developer;
+    Designer designer;
+
+    public void newWeek(){
+        int weeklyEarnings = 0;
+        /*
+            Add up all weekly contributions
+        */
+
+        if(player.getNumOfDevs() > 0){
+            developer = new Developer();
+            int totalDeveloperContribution =  player.getNumOfDevs()*developer.getContribution();
+            weeklyEarnings += totalDeveloperContribution;
+        }
+        if(player.getNumOfDesigners() > 0){
+            designer = new Designer();
+            int totalDesignerContribution = player.getNumOfDesigners()*designer.getContribution();
+            weeklyEarnings += totalDesignerContribution;
+        }
+
+
+        player.addCash(weeklyEarnings);
+        JOptionPane.showMessageDialog(null, "You made $" + weeklyEarnings + " this week.");
+        player.nextWeek();
+        cashLabel.setText(cashInWallet + player.getCash());
+        yearLabel.setText(player.getYearSTR());
+        monthLabel.setText(player.getMonthSTR());
+        weekLabel.setText(player.getWeekSTR());
 
     }
 

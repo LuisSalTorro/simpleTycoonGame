@@ -1,14 +1,22 @@
 package tycoonBasic;
 
 public class Designer extends Employee{
-    //private String position;
+    private String position = "Designer";
     private String name;
-    private int morale = 50; //starting morale
+    private int morale = 50,//starting morale
+                moraleMultiplyer = 50;
     private int salary; //salary can vary depending on experience
     private int exFromLastRaise, experience; //varies and more is better. 0-50
     //the more experience they gain, the more likely they are to ask for a raise.  Failure to give them one drops their morale
     //exFromLastRaise = experience gained since their previous raise
     private boolean wantRaise = false;
+    private int contribution; //per week
+
+
+    Designer(){
+        //default
+        this.salary = 1000;
+    }
 
     Designer(String name, int salary, int experience) {
         super(name,salary,experience);
@@ -17,6 +25,11 @@ public class Designer extends Employee{
         this.salary = salary;
         this.exFromLastRaise = experience; //sets starting experience.
         this.experience = experience;
+    }
+
+    public int getContribution(){
+        this.contribution = salary/3; //4 being weeks per month, and at base morale barely break even
+        return this.contribution*(morale/moraleMultiplyer);
     }
 
     public void wantsRaise(){
@@ -34,9 +47,9 @@ public class Designer extends Employee{
     protected int getExperience(){
         return this.experience;
     }
-   // protected String getPosition(){
-      //  return this.position;
-  //  }
+    protected String getPosition(){
+        return this.position;
+    }
     protected int getMorale(){
         return this.morale;
     }

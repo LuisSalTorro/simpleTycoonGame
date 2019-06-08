@@ -1,7 +1,7 @@
 package tycoonBasic;
 //parent class for employee positions.
 public class Employee {
-   //.. private String position;
+   private String position = "blank";
     private String name;
     private int morale = 50; //starting morale
     private int salary; //salary can vary depending on experience
@@ -9,6 +9,11 @@ public class Employee {
                             //the more experience they gain, the more likely they are to ask for a raise.  Failure to give them one drops their morale
                             //exFromLastRaise = experience gained since their previous raise
     private boolean wantRaise = false;
+    private int contributionMoney;
+
+    protected Employee(){
+        //default
+    }
 
     protected Employee(String name,int salary, int experience){
         this.name = name;
@@ -38,9 +43,9 @@ public class Employee {
     protected int getExperience(){
         return this.experience;
     }
-    //protected String getPosition(){
-//        return this.position;
-//    }
+    protected String getPosition(){
+       return this.position;
+    }
     protected int getMorale(){
         return this.morale;
     }
