@@ -27,7 +27,6 @@ public class Play extends JPanel {
                 player.getDateSTR());
 
         saveGame(player);
-
     }
 
     /**

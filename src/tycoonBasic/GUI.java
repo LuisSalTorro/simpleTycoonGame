@@ -6,6 +6,7 @@ import java.awt.*;
 import javax.swing.JButton;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Random;
 
 public class GUI extends JFrame{
 
@@ -63,16 +64,16 @@ public class GUI extends JFrame{
             boostMoraleSTR = "Boost Morale";
     Player player;
 
-    private JLabel cashLabel, workers, devoloperNumberLabel, designerNumberLabel,
+    private JLabel cashLabel, workers, developerNumberLabel, designerNumberLabel,
                     totalLoans,imgLabel,
                     weekLabel, monthLabel, yearLabel,
-                    repLabel;
+                    repLabel, moraleLabel;
 
     //private ImageIcon img;
 
     public void buildPanel(Player player) {
         this.player = player;
-        JLabel moraleLabel = new JLabel(moraleCheck + player.getMorale() + " (Out of 100)");
+        moraleLabel = new JLabel(moraleCheck + player.getMorale() + " (Out of 100)");
 
         weekLabel = new JLabel(player.getWeekSTR());
         monthLabel = new JLabel(player.getMonthSTR());
@@ -83,7 +84,7 @@ public class GUI extends JFrame{
         workers = new JLabel(workersCheck + player.numOfEmployees);
         String cashSTR = Integer.toString(this.player.getCash());
         cashLabel = new JLabel(cashInWallet + cashSTR);
-        devoloperNumberLabel = new JLabel(devsNumSTR + player.getNumOfDevs());
+        developerNumberLabel = new JLabel(devsNumSTR + player.getNumOfDevs());
         designerNumberLabel = new JLabel(designNumSTR  + player.getNumOfDesigners());
         JLabel saveGameLabel = new JLabel(saveThisGame);
 
@@ -132,7 +133,7 @@ public class GUI extends JFrame{
         panel3.add(imgLabel);
         panel5.add(rentLocation); //Currently in a new panel
 
-        panel4.add(devoloperNumberLabel);
+        panel4.add(developerNumberLabel);
         panel4.add(designerNumberLabel);
         panel4.add(hireButton);
 
@@ -183,14 +184,60 @@ public class GUI extends JFrame{
                 atBank();
             }
             if(event.getSource() == saveButton){
-                JOptionPane.showMessageDialog(null, gameSavedConfirmation);
                 play.saveGame(player);
+                JOptionPane.showMessageDialog(null, gameSavedConfirmation);
             }
             if(event.getSource() == nextWeekButton){
                 newWeek();
             }
             if(event.getSource() == moraleBoosterButton){
-                JOptionPane.showMessageDialog(null,"A list of items you can buy in the office to boost morale."); //And they'll be expensive
+                moralePress();
+            }
+        }
+
+        public void moralePress(){
+            //maybe put into arrays and then randomly pull one out from each String array
+            String[] upMorale = {"Give more breaks.", "Install modern bathrooms.", "Install a new common room.", "Create party committee.", "Install private parking lot.", "Buy new keyboards."},
+                    lowerMorale = {"Initiate tight deadlines.", "Mandatory Overtime.", "Block distracting websites.", "Daily Meetings."}; //lowers morale but gives short term bonuses like tons of cash flow
+            Random rand = new Random();
+
+            Object[] options = {upMorale[rand.nextInt((upMorale.length - 0))], //options
+                            lowerMorale[rand.nextInt((lowerMorale.length - 0))],//options
+                            cancel};
+            int ans = JOptionPane.showOptionDialog(null,
+                    "How would you like to proceed?", //screen
+                    "Morale",//title
+                    JOptionPane.YES_NO_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    options[2]);
+            switch(ans){
+                case 0:
+                    if(player.getMorale() >= 100){
+                        JOptionPane.showMessageDialog(null, "Morale can't go higher.");
+
+                    }else{
+                        JOptionPane.showMessageDialog(null, "Morale increased by 10.\n$10,000 spent.");
+                        player.changeMorale(10);
+                        player.payment(10000);
+                        cashLabel.setText(cashInWallet + player.getCash());
+                        moraleLabel.setText(moraleCheck + player.getMorale() + " (Out of 100)");
+                    }
+                    break;
+                case 1:
+                    if(player.getMorale() <= 10){
+                        JOptionPane.showMessageDialog(null, "Morale can't go lower.");
+                    }else{
+                        JOptionPane.showMessageDialog(null, "Morale decreased by 10. \n$10,000 earned.");
+                        player.changeMorale(-10);
+                        player.addCash(10000);
+                        cashLabel.setText(cashInWallet + player.getCash());
+                        moraleLabel.setText(moraleCheck + player.getMorale() + " (Out of 100)");
+                        player.changeReputation(1);
+                        repLabel.setText("Reputation: "+ player.getReputation());
+                    }
+                    break;
             }
         }
 
@@ -206,11 +253,13 @@ public class GUI extends JFrame{
                     null,
                     options,
                     options[2]);
-            if(ans == 0){ //hires developer
-                devHire();
-            }
-            if(ans == 1){ //hires designer
-                designHire();
+            switch (ans){
+                case 0:
+                    devHire();
+                    break;
+                case 1:
+                    designHire();
+                    break;
             }
         }
 
@@ -220,7 +269,7 @@ public class GUI extends JFrame{
                 first office: 5 total
                 second office: 9 total
                 third office: 16 total
-                fourth office: 32 total
+                fourth office: 35 total
                  */
             if(player.getRentTier() == 1 && player.getNumOfEmployees() >= 5){
                 JOptionPane.showMessageDialog(null,"You cannot hire more employees until you upgrade offices.");
@@ -234,7 +283,7 @@ public class GUI extends JFrame{
                 JOptionPane.showMessageDialog(null,"You cannot hire more employees until you upgrade offices.");
                 return false;
             }
-            if(player.getRentTier() == 4 && player.getNumOfEmployees() >= 32){
+            if(player.getRentTier() == 4 && player.getNumOfEmployees() >= 35){
                 JOptionPane.showMessageDialog(null,"You cannot hire more employees until you upgrade offices.");
                 return false;
             }
@@ -268,7 +317,7 @@ public class GUI extends JFrame{
             player.addEmployees();
             if(employee.getPosition().equals(DEVELOPER)){
                 player.addDev();
-                devoloperNumberLabel.setText(devsNumSTR + player.getNumOfDevs());
+                developerNumberLabel.setText(devsNumSTR + player.getNumOfDevs());
             }else if(employee.getPosition().equals(DESIGNER)){
                 player.addDesigner();
                 designerNumberLabel.setText(designNumSTR  + player.getNumOfDesigners());
@@ -383,7 +432,6 @@ public class GUI extends JFrame{
 
     }
 
-    //VERY PRONE TO ERROR!!!! FIX LATER TO CATCH FILES THAT DO NOT EXIST
     String location = "location",
             jpgFile = ".jpg";
     int width = WIN_WIDTH/3,
@@ -395,7 +443,7 @@ public class GUI extends JFrame{
         ImageIcon img = new ImageIcon(scaleImage);
         return img;
     }
-    //ABOVE METHOD IS VERY PRONE TO ERROR
+
     Developer developer;
     Designer designer;
 
@@ -404,14 +452,15 @@ public class GUI extends JFrame{
         /*
             Add up all weekly contributions
         */
-
         if(player.getNumOfDevs() > 0){
             developer = new Developer();
-            int totalDeveloperContribution =  player.getNumOfDevs()*developer.getContribution();
+            developer.changeMorale(player.getMorale());
+            int totalDeveloperContribution =  (player.getNumOfDevs()*developer.getContribution());
             weeklyEarnings += totalDeveloperContribution;
         }
         if(player.getNumOfDesigners() > 0){
             designer = new Designer();
+            designer.changeMorale(player.getMorale());
             int totalDesignerContribution = player.getNumOfDesigners()*designer.getContribution();
             weeklyEarnings += totalDesignerContribution;
         }
@@ -425,6 +474,6 @@ public class GUI extends JFrame{
         monthLabel.setText(player.getMonthSTR());
         weekLabel.setText(player.getWeekSTR());
 
-    }
+    } //new week method
 
 }

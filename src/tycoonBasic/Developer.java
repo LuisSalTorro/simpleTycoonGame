@@ -1,5 +1,7 @@
 package tycoonBasic;
 
+import javax.swing.*;
+
 public class Developer extends Employee{
 
     private String position = "Developer";
@@ -30,7 +32,14 @@ public class Developer extends Employee{
 
     public int getContribution(){
         this.contribution = salary/3; //4 being weeks per month, and at base morale barely break even
-        return this.contribution*(morale/moraleMultiplyer);
+
+        double moraleD = Double.valueOf(this.morale),
+                moraleMultD = Double.valueOf(this.moraleMultiplyer);
+        double contMult = moraleD/moraleMultD;
+        double totalCont =this.contribution*contMult;
+        totalCont = (double)Math.round(totalCont* 100d)/100d;
+
+        return (int) Math.round(totalCont);
     }
 
     public void wantsRaise(){
@@ -51,6 +60,9 @@ public class Developer extends Employee{
     protected String getPosition(){
       return this.position;
    }
+    public void changeMorale(int morale){
+        this.morale = morale;
+    }
     protected int getMorale(){
         return this.morale;
     }

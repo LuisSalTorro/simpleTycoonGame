@@ -46,6 +46,9 @@ public class Employee {
     protected String getPosition(){
        return this.position;
     }
+    public void changeMorale(int morale){
+        this.morale = morale;
+    }
     protected int getMorale(){
         return this.morale;
     }

@@ -58,6 +58,7 @@ public class Player {
     public void paySalary(){
         Developer developer = new Developer();
         Designer designer = new Designer();
+
         int totalSalaryPay = (numOfDevs*developer.getSalary())+(numOfDesigners*designer.getSalary());
         payment(totalSalaryPay);
         JOptionPane.showMessageDialog(null,salaryPaid+totalSalaryPay+salaryPaid2);
@@ -103,7 +104,7 @@ public class Player {
         return this.reputation;
     }
 
-    public void increaseReputation(int reputation){
+    public void changeReputation(int reputation){
         this.reputation += reputation;
     }
     public void addEmployees(){
@@ -114,8 +115,18 @@ public class Player {
         return this.morale;
     }
 
-    public void addMorale(int moraleAdder){
-        this.morale+=moraleAdder;
+    public void changeMorale(int moraleAdder){
+        if(moraleAdder < 0){
+            if(this.morale >= 20){
+                this.morale += moraleAdder;
+            }
+        }
+        if(0 < moraleAdder){
+            if(this.morale <= 90){
+                this.morale += moraleAdder;
+            }
+        }
+
     }
 
     public int getCash(){
