@@ -12,18 +12,21 @@ public class fileHandler {
     private Formatter file;
     private Scanner fileReader;
     private int numOfEmployees, numOfDevs, numOfDesigners; //currently dev and designer.
-    private int debt, interest;
+    private int debt;
+    private double interest;
     private int rentTier = 1, monthlyRent = 250;
     private int morale = 50;
     private String location1 = "location1.jpg", location2 = "location2.jpg", location3 = "location3.jpg", location4 = "location4.jpg";
     private int reputation = 1;
+    private boolean moraleChangedToday;
 
     private String dataInputs =  "%s\n%d\n%d %d %d\n" +          // +    //name, money, month, day, year.
                                     //  "%d%d" +             //add loans and morale(0-100)
                                     "%d\n%d %d" + //number of employees and then devs and designers
-                                    "\n%d %d" + //debt and interest
+                                    "\n%d %.2f" + //debt and interest
                                     "\n%d %d" + //rentTier and monthly rent
-                                    "\n%d %d"; //morale and reputation
+                                    "\n%d %d" + //morale and reputation
+                                    "\n%b"; //saves the boolean to check whether or not morale has changed
                                     //  "%d%d%d%d";         // Add more stuff, like numbers of workers in certain positions (secretary, dev, accoutant, HR, and so on.)
 
     //secretary boosts daily earnings by a small fraction.
@@ -54,7 +57,8 @@ public class fileHandler {
                     player.getDebt(), player.getInterest(), //number of employees by each position.
                     player.getRentTier(), player.getMonthlyRent(),
                     player.getMorale(),
-                    player.getReputation());
+                    player.getReputation(),
+                    player.getMoraleChanged());
         }catch(Exception e){
            // System.out.println(this.errorSavingGame);
             JOptionPane.showMessageDialog(null, this.errorSavingGame);
@@ -77,7 +81,8 @@ public class fileHandler {
                                 this.debt, this.interest, //adds number of employees split by position
                                 this.rentTier, this.monthlyRent,
                                 this.morale,
-                                this.reputation);
+                                this.reputation,
+                                this.moraleChangedToday);
         }catch(Exception e){
             JOptionPane.showMessageDialog(null, this.errorSavingGame);
         }
@@ -112,13 +117,15 @@ public class fileHandler {
             this.numOfDesigners = fileReader.nextInt();
 
             this.debt = fileReader.nextInt();
-            this.interest = fileReader.nextInt();
+            this.interest = fileReader.nextDouble();
 
             this.rentTier = fileReader.nextInt();
             this.monthlyRent = fileReader.nextInt();
             //add morale
             this.morale = fileReader.nextInt();
             this.reputation = fileReader.nextInt();
+
+            this.moraleChangedToday = fileReader.nextBoolean();
         }
     }
 
@@ -158,7 +165,7 @@ public class fileHandler {
     public int getDebt(){
         return this.debt;
     }
-    public int getInterest(){
+    public double getInterest(){
         return this.interest;
     }
     public int getRentTier(){return this.rentTier;}
@@ -166,6 +173,9 @@ public class fileHandler {
     public int getMorale(){return this.morale;}
     public int getReputation(){
         return this.reputation;
+    }
+    public boolean getMoraleChanged(){
+        return this.moraleChangedToday;
     }
 
     public void closeFile(){

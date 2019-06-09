@@ -69,7 +69,6 @@ public class GUI extends JFrame{
                     weekLabel, monthLabel, yearLabel,
                     repLabel, moraleLabel;
 
-    //private ImageIcon img;
 
     public void buildPanel(Player player) {
         this.player = player;
@@ -188,56 +187,68 @@ public class GUI extends JFrame{
                 JOptionPane.showMessageDialog(null, gameSavedConfirmation);
             }
             if(event.getSource() == nextWeekButton){
-                newWeek();
+                newWeek(); //skips a week
             }
             if(event.getSource() == moraleBoosterButton){
-                moralePress();
+                moralePress(); //allows player to change morale
             }
         }
 
         public void moralePress(){
-            //maybe put into arrays and then randomly pull one out from each String array
-            String[] upMorale = {"Give more breaks.", "Install modern bathrooms.", "Install a new common room.", "Create party committee.", "Install private parking lot.", "Buy new keyboards."},
-                    lowerMorale = {"Initiate tight deadlines.", "Mandatory Overtime.", "Block distracting websites.", "Daily Meetings."}; //lowers morale but gives short term bonuses like tons of cash flow
-            Random rand = new Random();
+            if(player.getMoraleChanged()){
+                JOptionPane.showMessageDialog(null,"Morale can only be changed once a day.");
+            }else if(player.getNumOfEmployees() <= 5){
+                JOptionPane.showMessageDialog(null, "To change morale you need more employees.");
+            }
+            else{
+                //maybe put into arrays and then randomly pull one out from each String array
+                String[] upMorale = {"Give more breaks.", "Install modern bathrooms.", "Install a new common room.", "Create party committee.", "Install private parking lot.", "Buy new keyboards."},
+                        lowerMorale = {"Initiate tight deadlines.", "Mandatory Overtime.", "Block distracting websites.", "Daily Meetings."}; //lowers morale but gives short term bonuses like tons of cash flow
+                Random rand = new Random();
 
-            Object[] options = {upMorale[rand.nextInt((upMorale.length - 0))], //options
-                            lowerMorale[rand.nextInt((lowerMorale.length - 0))],//options
-                            cancel};
-            int ans = JOptionPane.showOptionDialog(null,
-                    "How would you like to proceed?", //screen
-                    "Morale",//title
-                    JOptionPane.YES_NO_CANCEL_OPTION,
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    options,
-                    options[2]);
-            switch(ans){
-                case 0:
-                    if(player.getMorale() >= 100){
-                        JOptionPane.showMessageDialog(null, "Morale can't go higher.");
+                Object[] options = {upMorale[rand.nextInt((upMorale.length - 0))], //options
+                                lowerMorale[rand.nextInt((lowerMorale.length - 0))],//options
+                                cancel};
+                int ans = JOptionPane.showOptionDialog(null,
+                        "How would you like to proceed?", //screen
+                        "Morale",//title
+                        JOptionPane.YES_NO_CANCEL_OPTION,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        options,
+                        options[2]);
+                switch(ans){
+                    case 0:
+                        if(player.getMorale() >= 100){
+                            JOptionPane.showMessageDialog(null, "Morale can't go higher.");
 
-                    }else{
-                        JOptionPane.showMessageDialog(null, "Morale increased by 10.\n$10,000 spent.");
-                        player.changeMorale(10);
-                        player.payment(10000);
-                        cashLabel.setText(cashInWallet + player.getCash());
-                        moraleLabel.setText(moraleCheck + player.getMorale() + " (Out of 100)");
-                    }
-                    break;
-                case 1:
-                    if(player.getMorale() <= 10){
-                        JOptionPane.showMessageDialog(null, "Morale can't go lower.");
-                    }else{
-                        JOptionPane.showMessageDialog(null, "Morale decreased by 10. \n$10,000 earned.");
-                        player.changeMorale(-10);
-                        player.addCash(10000);
-                        cashLabel.setText(cashInWallet + player.getCash());
-                        moraleLabel.setText(moraleCheck + player.getMorale() + " (Out of 100)");
-                        player.changeReputation(1);
-                        repLabel.setText("Reputation: "+ player.getReputation());
-                    }
-                    break;
+                        }else if(player.getCash() < 10000){
+                            JOptionPane.showMessageDialog(null,"Player needs to have more than $10,000 to boost morale.");
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(null, "Morale increased by 10.\n$10,000 spent.");
+                            player.changeMorale(10);
+                            player.payment(10000);
+                            cashLabel.setText(cashInWallet + player.getCash());
+                            moraleLabel.setText(moraleCheck + player.getMorale() + " (Out of 100)");
+                            player.moraleChangedToday();
+                        }
+                        break;
+                    case 1:
+                        if(player.getMorale() <= 10){
+                            JOptionPane.showMessageDialog(null, "Morale can't go lower.");
+                        }else{
+                            JOptionPane.showMessageDialog(null, "Morale decreased by 10. \n$10,000 earned.");
+                            player.changeMorale(-10);
+                            player.addCash(10000);
+                            cashLabel.setText(cashInWallet + player.getCash());
+                            moraleLabel.setText(moraleCheck + player.getMorale() + " (Out of 100)");
+                            player.changeReputation(1);
+                            repLabel.setText("Reputation: "+ player.getReputation());
+                            player.moraleChangedToday();
+                        }
+                        break;
+                }
             }
         }
 
@@ -291,7 +302,7 @@ public class GUI extends JFrame{
         }
 
         public void devHire(){
-            Developer developer = new Developer("Rick", 2000, 0);
+            Developer developer = new Developer(2000, 0);
             if(player.getCash() - developer.getSalary() < 0){
                 JOptionPane.showMessageDialog(null, insuffecientFunds);
             }else{
@@ -300,7 +311,7 @@ public class GUI extends JFrame{
         }
 
         public void designHire(){
-            Designer designer = new Designer("Rick", 1000, 0);
+            Designer designer = new Designer(1000, 0);
             if(player.getCash() - designer.getSalary() < 0){
                 JOptionPane.showMessageDialog(null, insuffecientFunds);
             }else{
@@ -325,13 +336,17 @@ public class GUI extends JFrame{
             workers.setText(workersCheck + player.getNumOfEmployees());
         }
 
-
+        /**
+         * AtBank
+         * Allows users to take loans, or pay them off.
+         */
         public void atBank(){
+            String rate = " \nToday's interest rate is at " + player.getInterest() +"%";
             Object[] options = {payLoan,
                     takeLoan,
                     cancel};
             int ans = JOptionPane.showOptionDialog(null,
-                    bankGreet,
+                    bankGreet + rate,
                     bankTitle,
                     JOptionPane.YES_NO_CANCEL_OPTION,
                     JOptionPane.QUESTION_MESSAGE,
@@ -341,24 +356,25 @@ public class GUI extends JFrame{
             if(ans == 0 && player.getDebt() != 0){ //Pay off a loan
                 //pay off loan
                 int loanPayment;
-                while(true){
+                //while(true){
                     try{
                         loanPayment  = Integer.valueOf(JOptionPane.showInputDialog(loanAmountSTR1 + player.getDebt() + loanAmountSTR2, 1000));
                         if(player.debt - loanPayment < 0 || loanPayment < 0 || (player.getCash() - loanPayment) < 0){
                             JOptionPane.showMessageDialog(null, excessivePay);
-                            continue;
+                            //continue;
                         }
                         else{
-                            break;
+                           // break;
+                            player.loanPayment(loanPayment);
+                            String afterPay = Integer.toString(player.getCash());
+                            cashLabel.setText(cashInWallet + afterPay);
                         }
                     }catch(IllegalArgumentException e){
                         JOptionPane.showMessageDialog(null, illegalArgError);
                     }
-                }
+                //}
 
-                player.loanPayment(loanPayment);
-                String afterPay = Integer.toString(player.getCash());
-                cashLabel.setText(cashInWallet + afterPay);
+
 
             }else if(ans == 0 && player.getDebt() == 0){
                 JOptionPane.showMessageDialog(null, noLoansToPay);
@@ -366,21 +382,23 @@ public class GUI extends JFrame{
             if(ans == 1){
                 //have the amount to pull based on how much money you're generating
                 int loan;
-                while(true){
-                    try{
-                        loan = Integer.valueOf(JOptionPane.showInputDialog(howMuchForLoan, 1000));
-                        if(loan < 0){
-                            JOptionPane.showMessageDialog(null,negativeNumInput);
-                            continue;
-                        }
-
-                        break;
-                    }catch(IllegalArgumentException e){
-                        JOptionPane.showMessageDialog(null, illegalArgError);
+                //while(true){
+                try{
+                    loan = Integer.valueOf(JOptionPane.showInputDialog(howMuchForLoan, 1000));
+                    if(loan < 0){
+                        JOptionPane.showMessageDialog(null,negativeNumInput);
+                           // continue;
+                    }else{
+                        player.addCash(loan);
+                        player.addLoan(loan);
                     }
+
+                        //break;
+                }catch(IllegalArgumentException e){
+                    JOptionPane.showMessageDialog(null, illegalArgError);
                 }
-                player.addCash(loan);
-                player.addLoan(loan);
+                //}
+
                 String afterPay = Integer.toString(player.getCash());
                 cashLabel.setText(cashInWallet + afterPay);
 
@@ -473,6 +491,9 @@ public class GUI extends JFrame{
         yearLabel.setText(player.getYearSTR());
         monthLabel.setText(player.getMonthSTR());
         weekLabel.setText(player.getWeekSTR());
+
+        totalLoans.setText(amountOfLoansSTR + player.getDebt());
+
 
     } //new week method
 

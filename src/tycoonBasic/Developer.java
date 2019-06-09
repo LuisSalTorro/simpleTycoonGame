@@ -5,7 +5,6 @@ import javax.swing.*;
 public class Developer extends Employee{
 
     private String position = "Developer";
-    private String name;
     private int morale = 50,//starting morale, range 1-100
                     moraleMultiplyer = 50; //at 50/50 no bonus or penalty
     private int salary; //salary can vary depending on experience
@@ -21,9 +20,8 @@ public class Developer extends Employee{
         this.salary = 2000;
     }
 
-    Developer(String name, int salary, int experience) {
-        super(name,salary,experience);
-        this.name = name;
+    Developer(int salary, int experience) {
+        super(salary,experience);
         //this.position = position;
         this.salary = salary;
         this.exFromLastRaise = experience; //sets starting experience.
@@ -48,10 +46,6 @@ public class Developer extends Employee{
 
     protected void receivedRaise(){
         wantRaise = false;
-    }
-
-    protected String getName(){
-        return this.name;
     }
 
     protected int getExperience(){

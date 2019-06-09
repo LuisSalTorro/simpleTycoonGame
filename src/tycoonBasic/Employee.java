@@ -2,7 +2,7 @@ package tycoonBasic;
 //parent class for employee positions.
 public class Employee {
    private String position = "blank";
-    private String name;
+
     private int morale = 50; //starting morale
     private int salary; //salary can vary depending on experience
     private int exFromLastRaise, experience; //varies and more is better. 0-50
@@ -15,8 +15,8 @@ public class Employee {
         //default
     }
 
-    protected Employee(String name,int salary, int experience){
-        this.name = name;
+    protected Employee(int salary, int experience){
+
        // ..this.position = position;
         this.salary = salary;
         this.exFromLastRaise = exFromLastRaise;
@@ -34,10 +34,6 @@ public class Employee {
 
     protected void receivedRaise(){
         wantRaise = false;
-    }
-
-    protected String getName(){
-        return this.name;
     }
 
     protected int getExperience(){
